@@ -1,0 +1,12 @@
+export { LogoIcon } from  './logo';
+export { CloseIcon } from './close';
+export { HomeIcon } from './home';
+export { ImageIcon } from './image';
+export { YoutubeIcon } from './youtube';
+export { ArticleIcon }  from './article';
+export { AudioIcon } from './audio';
+export { PdfIcon } from './pdf';
+export { HamburgerIcon } from './hamburger';
+export { AddIcon } from './add';
+export { DownIcon } from './down';
+export { DeleteIcon } from './delete';
