@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import * as Icon from '../icons';
 import { SigninBox } from './signin';
-// If you don't have SignupBox yet, create one similar to SigninBox and export it.
-// For now this import assumes you will implement SignupBox at ./signup
 import { SignUpBox } from './signup'; 
 
-// --- Header (now accepts handlers) ---
 interface HeaderProps {
   onSigninClick: () => void;
   onSignupClick: () => void;
@@ -44,7 +41,6 @@ const Header = ({ onSigninClick, onSignupClick }: HeaderProps) => (
         </button>
       </div>
 
-      {/* mobile / small-screen controls (optional) */}
       <div className="sm:hidden flex items-center gap-2">
         <button
           type="button"
@@ -67,7 +63,6 @@ const Header = ({ onSigninClick, onSignupClick }: HeaderProps) => (
   </header>
 );
 
-// --- Hero section receives two callbacks (Get Started => signup, Sign In => signin) ---
 interface HeroProps {
   onGetStartedClick: () => void; // opens signup
   onSigninClick: () => void;     // opens signin

@@ -7,7 +7,6 @@ import { AddContentModal } from "../components/AddContent";
 import type { ContentInput } from "../components/AddContent";
 import { useNavigate } from "react-router-dom";
 
-// --- Type Definitions ---
 interface User {
   name: string;
   email: string;
@@ -26,7 +25,7 @@ interface BackendContent {
 interface Content extends ContentInput {
   _id: string;
   previewhtml?: string;
-  tags: string; // comma-separated string
+  tags: string;
 }
 
 interface DashboardProps {
@@ -34,15 +33,15 @@ interface DashboardProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// --- Main Dashboard Component ---
-export function Dashboard({setToken, setOpen} : DashboardProps) {
+export function Dashboard({ setToken, setOpen }: DashboardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contents, setContents] = useState<Content[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const [selectedType, setSelectedType] = useState<string>("all");
 
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -60,7 +59,7 @@ export function Dashboard({setToken, setOpen} : DashboardProps) {
           axios.get<{ user: User }>("http://localhost:3000/api/v1/me", config),
           axios.get<{ contents: BackendContent[] }>("http://localhost:3000/api/v1/content", config)
         ]);
-        
+
         setUser(userRes.data.user);
 
         const formattedContent = contentRes.data.contents.map(item => ({
@@ -77,7 +76,7 @@ export function Dashboard({setToken, setOpen} : DashboardProps) {
         console.error(err);
         setError("Unauthorized or failed to fetch data. Please sign in again.");
         localStorage.removeItem("token");
-        navigate('/signin'); // Navigate to the correct frontend route
+        navigate('/signin');
       } finally {
         setLoading(false);
       }
@@ -114,7 +113,7 @@ export function Dashboard({setToken, setOpen} : DashboardProps) {
       await axios.delete(`http://localhost:3000/api/v1/content/${id}`, {
         headers: { Authorization: token },
       });
-      setContents((prev) => prev.filter((item) => item._id !== id));
+      setContents(prev => prev.filter(item => item._id !== id));
     } catch (err) {
       console.error("Failed to delete content:", err);
       alert("Failed to delete content");
@@ -128,10 +127,15 @@ export function Dashboard({setToken, setOpen} : DashboardProps) {
     navigate('/');
   };
 
+  // Filter logic
+  const filteredContents = selectedType === "all"
+    ? contents
+    : contents.filter(item => item.type === selectedType);
+
   if (loading) {
     return <div className="text-center mt-20 text-lg font-semibold">Loading your dashboard...</div>;
   }
-  
+
   if (error) {
     return <div className="text-center mt-20 text-red-600">{error}</div>;
   }
@@ -139,30 +143,36 @@ export function Dashboard({setToken, setOpen} : DashboardProps) {
   return (
     <div className="sm:flex sm:flex-row flex-col">
       <div className="fixed top-0 left-0 sm:w-fit w-full z-20">
-        <Sidebar image={user?.profilePictureUrl} onAddClick={() => setIsModalOpen(true)} onLogout={handleLogout}/>
+        <Sidebar
+          image={user?.profilePictureUrl}
+          onAddClick={() => setIsModalOpen(true)}
+          onLogout={handleLogout}
+          onFilterSelect={(type) => setSelectedType(type)}
+        />
       </div>
+
       <div className="flex-1 lg:ml-60 sm:ml-14 mt-[60px] sm:mt-0 h-screen overflow-y-auto bg-[#daedeb] sm:transition-[margin-left] duration-200 ease-in-out">
-        <Navbar 
-          title={user?.name || "User"} 
-          image={user?.profilePictureUrl} 
-          onAddClick={() => setIsModalOpen(true)} 
-          onLogout={handleLogout} 
+        <Navbar
+          title={user?.name || "User"}
+          image={user?.profilePictureUrl}
+          onAddClick={() => setIsModalOpen(true)}
+          onLogout={handleLogout}
         />
         <div className="sm:mt-30 mt-5 sm:block flex justify-center">
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mx-5">
-              {contents.map(item => (
-                <div key={item._id} className="w-full h-full flex flex-col justify-center ">
-                  <Cards
-                    title={item.title}
-                    link={item.link}
-                    type={item.type}
-                    tags={item.tags}
-                    previewhtml={item.previewhtml}
-                    onDelete={() => handleDelete(item._id)}
-                  />
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mx-5">
+            {filteredContents.map(item => (
+              <div key={item._id} className="w-full h-full flex flex-col justify-center ">
+                <Cards
+                  title={item.title}
+                  link={item.link}
+                  type={item.type}
+                  tags={item.tags}
+                  previewhtml={item.previewhtml}
+                  onDelete={() => handleDelete(item._id)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
         <AddContentModal
           isOpen={isModalOpen}
