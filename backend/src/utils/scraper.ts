@@ -67,7 +67,9 @@ export async function getPreviewHTML(url: string): Promise<string> {
           ? `<div style="height:150px;max-height:150px;overflow:hidden;border-radius:4px;">
                <img src="${screenshotBase64}" alt="screenshot" style="width:100%;height:100%;object-fit:cover;" />
              </div>`
-          : ''
+          : `<div style="height:150px;max-height:150px;overflow:hidden;border-radius:4px;">
+               <img src="https://res.cloudinary.com/drqcrqxnz/image/upload/v1755367727/broken-image_txrjqr.png" alt="screenshot" style="width:100%;height:100%;object-fit:cover;" />
+             </div>`
       }
     </a>
   </div>

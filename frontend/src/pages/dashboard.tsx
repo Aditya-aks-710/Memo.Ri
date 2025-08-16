@@ -29,8 +29,13 @@ interface Content extends ContentInput {
   tags: string; // comma-separated string
 }
 
+interface DashboardProps {
+  setToken: (t: string | null) => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
 // --- Main Dashboard Component ---
-export function Dashboard() {
+export function Dashboard({setToken, setOpen} : DashboardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contents, setContents] = useState<Content[]>([]);
   const [user, setUser] = useState<User | null>(null);
@@ -42,7 +47,7 @@ export function Dashboard() {
 
   useEffect(() => {
     if (!token) {
-      navigate('/signin');
+      navigate('/');
       return;
     }
 
@@ -118,7 +123,9 @@ export function Dashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    navigate('/signin');
+    setToken(null);
+    setOpen(false);
+    navigate('/');
   };
 
   if (loading) {
@@ -144,7 +151,7 @@ export function Dashboard() {
         <div className="sm:mt-30 mt-5 sm:block flex justify-center">
             <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mx-5">
               {contents.map(item => (
-                <div key={item._id} className="sm:flex justify-center block">
+                <div key={item._id} className="w-full h-full flex flex-col justify-center ">
                   <Cards
                     title={item.title}
                     link={item.link}
