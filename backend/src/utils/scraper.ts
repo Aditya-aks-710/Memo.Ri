@@ -34,7 +34,7 @@ export async function getPreviewHTML(url: string): Promise<string> {
     await browser.close();
 
     return `
-  <div style="border:1px solid #ccc;padding:12px;border-radius:8px;max-width:500px;">
+  <div style="border:1px solid #ccc;padding:12px;border-radius:8px;width:100%">
     <a href="${url}" target="_blank" style="text-decoration:none;color:inherit;display:block;">
       <strong style="
         font-size:1.1rem;
@@ -60,11 +60,11 @@ export async function getPreviewHTML(url: string): Promise<string> {
       </p>
       ${
         metadata.image
-          ? `<div style="height:150px;overflow:hidden;border-radius:4px;">
+          ? `<div style="height:150px;max-height:150px;overflow:hidden;border-radius:4px;">
                <img src="${metadata.image}" alt="preview" style="width:100%;height:100%;object-fit:cover;" />
              </div>`
           : screenshotBase64
-          ? `<div style="height:150px;overflow:hidden;border-radius:4px;">
+          ? `<div style="height:150px;max-height:150px;overflow:hidden;border-radius:4px;">
                <img src="${screenshotBase64}" alt="screenshot" style="width:100%;height:100%;object-fit:cover;" />
              </div>`
           : ''

@@ -120,17 +120,17 @@ useEffect(() => {
                 ) : error ? (
                 <div className="text-center mt-10 text-red-600">{error}</div>
                 ) : (
-                <div className="flex flex-wrap justify-start gap-5 mx-8">
+                  <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mx-5">
                     {contents.map(item => (
-                    <div key={item._id} className="">
-                        <Cards
-                            title={item.title}
-                            link={item.link}
-                            type={item.type}
-                            tags={item.tags}
-                            previewhtml={item.previewhtml}
-                            onDelete={() => handleDelete(item._id)}
-                        />
+                        <div key={item._id} className="sm:flex justify-center block">
+                            <Cards
+                                title={item.title}
+                                link={item.link}
+                                type={item.type}
+                                tags={item.tags}
+                                previewhtml={item.previewhtml}
+                                onDelete={() => handleDelete(item._id)}
+                            />
                         </div>
                     ))}
                 </div>

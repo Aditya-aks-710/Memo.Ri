@@ -11,7 +11,7 @@ export function Cards(props: CardProps) {
         : [];
 
     return (
-        <div className='bg-white rounded-md drop-shadow-2xl sm:max-w-89 max-w-full h-fit'>
+        <div className='bg-white rounded-md drop-shadow-2xl sm:max-w-89 max-w-100 h-fit min-w-50'>
             <div className='flex justify-between items-center px-2 pt-3'>
             <div className='font-medium text-sm bg-[#438989] max-h-8 px-3 py-2 flex items-center justify-center rounded-md text-white gap-1'>
                 {props.title}
@@ -26,7 +26,7 @@ export function Cards(props: CardProps) {
             <div className='p-2 flex justify-center items-center'>
                 {props.previewhtml ? (
                     <div
-                        className="sm:w-70 w-100"
+                        className="w-full"
                         dangerouslySetInnerHTML={{ __html: props.previewhtml }}
                     />
                     ) : (
