@@ -2,14 +2,15 @@ import { useState } from 'react';
 import * as Icon from '../icons';
 import type { SubSidebarProps } from '../types/props';
 import { Button } from './button';
-import { ProfileBar } from './profilebutton';
-import dp from '../assets/nn.jpg';
+import { ProfileDropdown } from './profiledropdown';
 
 interface SidebarProps{
+    image?: string;
     onAddClick : () => void;
+    onLogout: () => void;
 }
 
-export function Sidebar({ onAddClick } : SidebarProps) {
+export function Sidebar({ image, onAddClick, onLogout} : SidebarProps) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -42,7 +43,7 @@ export function Sidebar({ onAddClick } : SidebarProps) {
                     </div>
                     <div className='flex items-center gap-2'>
                         <Button icon={Icon.AddIcon} title='Add' onClick={onAddClick}/>
-                        <ProfileBar image={dp}/>
+                        <ProfileDropdown image={image} onLogout={onLogout}/>
                     </div>
                 </div>
             </div>

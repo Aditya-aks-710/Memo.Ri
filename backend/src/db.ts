@@ -3,11 +3,12 @@ import { required } from "zod/v4/core/util.cjs";
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
-const UserSchema = new Schema({
-    email: { type: String, unique: true, required: true },
-    password: { type: String, required: true },
-    name: { type: String, required: true }
-});
+const UserSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
+  password: { type: String, required: true },
+  profilePictureUrl: { type: String, default: '' },
+}, { timestamps: true });
 
 export const UserModel = mongoose.model("User", UserSchema);
 

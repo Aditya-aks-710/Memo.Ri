@@ -1,13 +1,14 @@
 import { Button } from "./button"
-import { ProfileBar } from "./profilebutton"
 import * as Icon from '../icons'
 import type { NavbarProps } from "../types/props"
+import { ProfileDropdown } from "./profiledropdown";
 
 interface ExtendedNavbarProps extends NavbarProps {
   onAddClick: () => void;
+  onLogout: () => void;
 }
 
-export function Navbar({ title, image, onAddClick }: ExtendedNavbarProps) {
+export function Navbar({ title, image, onAddClick, onLogout}: ExtendedNavbarProps) {
   return (
     <div className="fixed top-0 right-0 w-full z-100">
       <div className='sm:flex hidden justify-between items-center p-4 lg:ml-60 sm:ml-14 sm:border-b-2 sm:border-white bg-[#daedeb]'>
@@ -19,7 +20,7 @@ export function Navbar({ title, image, onAddClick }: ExtendedNavbarProps) {
             <Button icon={Icon.AddIcon} title='Add' onClick={onAddClick} />
           </div>
           <div>
-            <ProfileBar image={image} />
+            <ProfileDropdown image={image} onLogout={onLogout}/>
           </div>
         </div>
       </div>

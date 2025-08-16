@@ -5,9 +5,15 @@ import { Cards } from "../components/cards";
 import { Navbar } from "../components/Navbar";
 import { AddContentModal } from "../components/AddContent";
 import type { ContentInput } from "../components/AddContent";
-import dp from "../assets/nn.jpg";
+import { useNavigate } from "react-router-dom";
 
-// Backend response format for GET
+// --- Type Definitions ---
+interface User {
+  name: string;
+  email: string;
+  profilePictureUrl: string;
+}
+
 interface BackendContent {
   _id: string;
   title: string;
@@ -17,131 +23,146 @@ interface BackendContent {
   tags: { title: string }[];
 }
 
-// Data used in frontend (flattened tags as string)
-interface ContentResponse extends ContentInput {
+interface Content extends ContentInput {
   _id: string;
   previewhtml?: string;
   tags: string; // comma-separated string
 }
 
-
+// --- Main Dashboard Component ---
 export function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [contents, setContents] = useState<ContentResponse[]>([]);
+  const [contents, setContents] = useState<Content[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
 
-  // Fetch content on load
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const res = await axios.get<{ contents: BackendContent[] }>("http://localhost:3000/api/v1/content", {
-        headers: {
-          Authorization: token,
-        },
-      });
-
-      const formatted = res.data.contents.map(item => ({
-        _id: item._id,
-        title: item.title,
-        type: item.type,
-        link: item.link,
-        previewhtml: item.previewhtml,
-        tags: item.tags.map(tag => tag.title).join(", "),
-      }));
-
-      setContents(formatted);
-    } catch (err) {
-      console.error(err);
-      setError("Unauthorized or failed to fetch content");
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (!token) {
+      navigate('/signin');
+      return;
     }
-  };
 
-  fetchData();
-}, [token]);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const config = { headers: { Authorization: token } };
 
+        const [userRes, contentRes] = await Promise.all([
+          axios.get<{ user: User }>("http://localhost:3000/api/v1/me", config),
+          axios.get<{ contents: BackendContent[] }>("http://localhost:3000/api/v1/content", config)
+        ]);
+        
+        setUser(userRes.data.user);
 
-  // Add content
-  const handleAddContent = async (data: ContentInput) => {
-    const response = await axios.post<{
-      contentId: string;
-      previewhtml?: string;
-    }>("http://localhost:3000/api/v1/content", {
-      ...data,
-      tags: data.tags.split(",").map(tag => tag.trim()),
-    }, {
-      headers: {
-        Authorization: token,
-      },
-    });
+        const formattedContent = contentRes.data.contents.map(item => ({
+          _id: item._id,
+          title: item.title,
+          type: item.type,
+          link: item.link,
+          previewhtml: item.previewhtml,
+          tags: item.tags.map(tag => tag.title).join(", "),
+        }));
+        setContents(formattedContent);
 
-    const newItem: ContentResponse = {
-      ...data,
-      _id: response.data.contentId,
-      previewhtml: response.data.previewhtml,
-      tags: data.tags,
+      } catch (err) {
+        console.error(err);
+        setError("Unauthorized or failed to fetch data. Please sign in again.");
+        localStorage.removeItem("token");
+        navigate('/signin'); // Navigate to the correct frontend route
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setContents(prev => [newItem, ...prev]);
+    fetchData();
+  }, [token, navigate]);
+
+  const handleAddContent = async (data: ContentInput) => {
+    try {
+      const config = { headers: { Authorization: token } };
+      const response = await axios.post<{ contentId: string; previewhtml?: string }>(
+        "http://localhost:3000/api/v1/content",
+        { ...data, tags: data.tags.split(",").map(tag => tag.trim()) },
+        config
+      );
+
+      const newItem: Content = {
+        ...data,
+        _id: response.data.contentId,
+        previewhtml: response.data.previewhtml,
+        tags: data.tags,
+      };
+      setContents(prev => [newItem, ...prev]);
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error("Failed to add content:", err);
+      alert("Failed to add content. Please try again.");
+    }
   };
 
-
-  //delete
-  const handleDelete = async (id : string) => {
-    console.log(id);
-    try{
+  const handleDelete = async (id: string) => {
+    try {
       await axios.delete(`http://localhost:3000/api/v1/content/${id}`, {
-        headers: {
-          Authorization: token,
-        },
+        headers: { Authorization: token },
       });
       setContents((prev) => prev.filter((item) => item._id !== id));
-    }
-    catch(err){
-      console.error(err);
+    } catch (err) {
+      console.error("Failed to delete content:", err);
       alert("Failed to delete content");
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/signin');
+  };
+
+  if (loading) {
+    return <div className="text-center mt-20 text-lg font-semibold">Loading your dashboard...</div>;
+  }
+  
+  if (error) {
+    return <div className="text-center mt-20 text-red-600">{error}</div>;
+  }
+
   return (
     <div className="sm:flex sm:flex-row flex-col">
-        <div className="fixed top-0 left-0 sm:w-fit w-full z-100">
-            <Sidebar onAddClick={() => setIsModalOpen(true)}/>
-        </div>
-        <div className="flex-1 lg:ml-60 sm:ml-14 mt-[60px] sm:mt-0 h-screen overflow-y-auto bg-[#daedeb] sm:transition-[margin-left] duration-200 ease-in-out">
-            <Navbar title="Aditya" image={dp} onAddClick={() => setIsModalOpen(true)} />
-            <div className="sm:mt-30 mt-5 sm:block flex justify-center">     
-                {loading ? (
-                <div className="text-center mt-10 text-lg font-semibold">Loading content...</div>
-                ) : error ? (
-                <div className="text-center mt-10 text-red-600">{error}</div>
-                ) : (
-                  <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mx-5">
-                    {contents.map(item => (
-                        <div key={item._id} className="sm:flex justify-center block">
-                            <Cards
-                                title={item.title}
-                                link={item.link}
-                                type={item.type}
-                                tags={item.tags}
-                                previewhtml={item.previewhtml}
-                                onDelete={() => handleDelete(item._id)}
-                            />
-                        </div>
-                    ))}
+      <div className="fixed top-0 left-0 sm:w-fit w-full z-20">
+        <Sidebar image={user?.profilePictureUrl} onAddClick={() => setIsModalOpen(true)} onLogout={handleLogout}/>
+      </div>
+      <div className="flex-1 lg:ml-60 sm:ml-14 mt-[60px] sm:mt-0 h-screen overflow-y-auto bg-[#daedeb] sm:transition-[margin-left] duration-200 ease-in-out">
+        <Navbar 
+          title={user?.name || "User"} 
+          image={user?.profilePictureUrl} 
+          onAddClick={() => setIsModalOpen(true)} 
+          onLogout={handleLogout} 
+        />
+        <div className="sm:mt-30 mt-5 sm:block flex justify-center">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mx-5">
+              {contents.map(item => (
+                <div key={item._id} className="sm:flex justify-center block">
+                  <Cards
+                    title={item.title}
+                    link={item.link}
+                    type={item.type}
+                    tags={item.tags}
+                    previewhtml={item.previewhtml}
+                    onDelete={() => handleDelete(item._id)}
+                  />
                 </div>
-                )}
+              ))}
             </div>
-            <AddContentModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            onSubmit={handleAddContent}
-            />
         </div>
+        <AddContentModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleAddContent}
+        />
+      </div>
     </div>
   );
 }

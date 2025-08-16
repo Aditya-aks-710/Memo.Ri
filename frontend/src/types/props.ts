@@ -13,7 +13,7 @@ export type SubSidebarProps = {
 
 export type NavbarProps = {
     title?: string;
-    image: string;
+    image?: string;
 };
 
 export type InputProps = {

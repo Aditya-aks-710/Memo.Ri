@@ -12,9 +12,12 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "@types/axios": "^0.9.36",
+    "@types/helmet": "^0.0.48",
     "axios": "^1.10.0",
+    "helmet": "^8.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-image-crop": "^11.0.10",
     "react-router-dom": "^7.7.0",
     "tailwindcss": "^4.1.11"
   },

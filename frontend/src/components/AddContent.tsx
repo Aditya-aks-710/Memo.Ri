@@ -21,7 +21,6 @@ export function AddContentModal({ isOpen, onClose, onSubmit }: AddContentModalPr
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       setForm(initialForm);
@@ -51,7 +50,7 @@ export function AddContentModal({ isOpen, onClose, onSubmit }: AddContentModalPr
 
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-500">
-      <form className="bg-[#daedeb] p-6 rounded-md shadow-2xl w-full max-w-md space-y-4 border border-gray-400" onSubmit={handleSubmit}>
+      <form className="bg-[#daedeb] p-6 mx-4 rounded-md shadow-2xl w-full max-w-md space-y-4 border border-gray-400" onSubmit={handleSubmit}>
         <h2 className="text-xl font-semibold mb-4 text-center">Add New Content</h2>
 
         <InputBox
@@ -66,7 +65,7 @@ export function AddContentModal({ isOpen, onClose, onSubmit }: AddContentModalPr
           value={form.type}
           onChange={handleChange}
           required
-          className="px-2 py-1.5 mx-4 border border-[#438989] rounded-md bg-white"
+          className="sm:px-2 px-1 py-1.5 sm:mx-4 mx-2 border border-[#438989] rounded-md bg-white"
         >
           <option value="image">Image</option>
           <option value="video">Video</option>

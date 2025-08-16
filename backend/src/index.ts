@@ -1,171 +1,39 @@
 import express from "express";
 import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
-import dotenv, { parse } from "dotenv";
-import bcrypt from 'bcrypt';
-import { ContentModel, TagModel, UserModel } from "./db";
-import { signupSchema } from "./validators/uservalidation";
-import { contentSchema } from "./validators/contentvalidation";
-import { UserAuth } from "./middleware";
-import { getPreviewHTML } from "./utils/scraper";
+import dotenv from "dotenv";
 import cors from 'cors';
+import helmet from 'helmet';
+import userRoutes from './routes/userRoutes';
+import contentRoutes from './routes/contentRoutes';
+import cloudinary from 'cloudinary';
 
 dotenv.config();
+
+// Configure Cloudinary
+cloudinary.v2.config({ 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+  api_key: process.env.CLOUDINARY_API_KEY, 
+  api_secret: process.env.CLOUDINARY_API_SECRET 
+});
+
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
 app.use(cors());
+app.use(helmet());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGODB_URI!);
+// Database Connection
+mongoose.connect(process.env.MONGODB_URI!)
+    .then(() => console.log("MongoDB connected successfully."))
+    .catch(err => console.error("MongoDB connection error:", err));
 
-app.post("/api/v1/signup", async function(req, res){
-    const { email, password, name } = signupSchema.parse(req.body);
-    const response = await UserModel.findOne({
-        email: email
-    });
+// API Routes
+app.use('/api/v1', userRoutes);
+app.use('/api/v1', contentRoutes);
 
-    if(response){
-        return res.status(403).json({
-            message: "Email already exists !"
-        });
-    }
-
-    const salt = await bcrypt.genSalt(5);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    await UserModel.create({
-        email: email,
-        password: hashedPassword,
-        name: name
-    });
-
-    return res.status(200).json({
-        message: "Signed Up Successfully"
-    });
-});
-
-app.post("/api/v1/signin", async function(req, res){
-    console.log(res);
-    console.log(req);
-    const { email, password } = req.body;
-    const response = await UserModel.findOne({
-        email: email
-    });
-
-    if(!response){
-        return res.status(403).json({
-            message: "Wrong Email or Password"
-        });
-    }
-
-    const matchedPassword = await bcrypt.compare(password, response.password);
-    if(response && matchedPassword){
-        const token = jwt.sign({
-            id: response._id.toString()
-        }, process.env.JWT_SECRET!);
-
-        res.status(200).json({
-            token: token
-        });
-    } else {
-        return res.status(403).json({
-            message: "Wrong Email or Password !"
-        });
-    }
-});
-
-app.post("/api/v1/content", UserAuth, async function(req, res) {
-    const { title, type, link, tags } : {
-        title: string;
-        type: string;
-        link: string;
-        tags?: string[];
-    } = contentSchema.parse(req.body);
-
-    let previewhtml = "";
-    try {
-        previewhtml = await getPreviewHTML(link);
-    } catch (error) {
-        console.error("Preview fetch failed", error);
-    }
-
-    const content = await ContentModel.create({
-        title: title,
-        type: type,
-        link: link,
-        tags: [],
-        creatorId: req.userId,
-        previewhtml: previewhtml
-    });
-
-    const tagIds = [];
-    if(!tags) {
-        return;
-    }
-    for(let tagtitle of tags) {
-        let tag = await TagModel.findOne({ 
-            title: tagtitle 
-        });
-        if(!tag){
-            tag = await TagModel.create({
-                title: tagtitle,
-                contentId: content._id
-            });
-        } else {
-            await TagModel.updateOne({
-                title: tagtitle
-            }, {
-                $addToSet: { contentId: content._id }
-            });
-            tag = await TagModel.findOne({ title: tagtitle });
-        }
-        if(tag) tagIds.push(tag._id);
-    }
-
-    content.tags = tagIds;
-    await content.save();
-
-    res.status(200).json({
-        message: "Content added...",
-        contentId: content._id,
-        previewhtml
-    });
-});
-
-app.get("/api/v1/content", UserAuth, async function(req, res) {
-    const creatorId = req.userId;
-    const contents = await ContentModel.find({
-        creatorId: creatorId
-    }).populate([
-        {
-            path: 'creatorId',
-            select: 'name email -_id'
-        },
-        {
-            path: 'tags',
-            select: 'title -_id'
-        }
-    ]);
-
-    if(!contents){
-        return res.status(404).json({
-            message: "Cannot find the contents"
-        });
-    }
-    res.status(200).json({
-        contents
-    });
-});
-
-app.delete("/api/v1/content/:id", UserAuth, async function(req, res) {
-    const id = req.params.id;
-    console.log(id);
-    await ContentModel.findByIdAndDelete(id);
-    res.status(200).json({
-        success: true
-    })
-});
-
-
-app.listen(process.env.PORT!, () => {
-    console.log(`Server running at port ${process.env.PORT}`);
+// Server Startup
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
 });
