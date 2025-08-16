@@ -50,8 +50,8 @@ export function AddContentModal({ isOpen, onClose, onSubmit }: AddContentModalPr
   };
 
   return (
-    <div className="fixed inset-0 bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
-      <form className="bg-[#daedeb] p-6 rounded-md shadow-2xl w-full max-w-md space-y-4" onSubmit={handleSubmit}>
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-500">
+      <form className="bg-[#daedeb] p-6 rounded-md shadow-2xl w-full max-w-md space-y-4 border border-gray-400" onSubmit={handleSubmit}>
         <h2 className="text-xl font-semibold mb-4 text-center">Add New Content</h2>
 
         <InputBox

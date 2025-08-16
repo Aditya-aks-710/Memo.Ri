@@ -34,20 +34,46 @@ export async function getPreviewHTML(url: string): Promise<string> {
     await browser.close();
 
     return `
-      <div style="border:1px solid #ccc;padding:12px;border-radius:8px;max-width:500px;">
-        <a href="${url}" target="_blank" style="text-decoration:none;color:inherit;">
-          <strong style="font-size:1.1rem;">${metadata.title}</strong>
-          <p style="color:gray;">${metadata.description}</p>
-          ${
-            metadata.image
-              ? `<img src="${metadata.image}" alt="preview" style="width:100%;border-radius:4px;" />`
-              : screenshotBase64
-              ? `<img src="${screenshotBase64}" alt="screenshot" style="width:100%;border-radius:4px;" />`
-              : ''
-          }
-        </a>
-      </div>
-    `;
+  <div style="border:1px solid #ccc;padding:12px;border-radius:8px;max-width:500px;">
+    <a href="${url}" target="_blank" style="text-decoration:none;color:inherit;display:block;">
+      <strong style="
+        font-size:1.1rem;
+        margin-bottom:4px;
+        display:block;
+        width:100%;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+      ">
+        ${metadata.title || 'No title'}
+      </strong>
+      <p style="
+        font-size:0.9rem;
+        color:#555;
+        margin:4px 0;
+        width:100%;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+      ">
+        ${metadata.description || 'No description'}
+      </p>
+      ${
+        metadata.image
+          ? `<div style="height:150px;overflow:hidden;border-radius:4px;">
+               <img src="${metadata.image}" alt="preview" style="width:100%;height:100%;object-fit:cover;" />
+             </div>`
+          : screenshotBase64
+          ? `<div style="height:150px;overflow:hidden;border-radius:4px;">
+               <img src="${screenshotBase64}" alt="screenshot" style="width:100%;height:100%;object-fit:cover;" />
+             </div>`
+          : ''
+      }
+    </a>
+  </div>
+`;
+
+
   } catch (err) {
     await browser.close();
     console.error("Error fetching preview:", err);

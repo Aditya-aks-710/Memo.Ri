@@ -33,6 +33,7 @@ export type CardProps = {
     type: ContentTypes;
     tags: string | string[];
     previewhtml?: string;
+    onDelete?: () => void;
 };
 
 export type AuthRouteProps = {

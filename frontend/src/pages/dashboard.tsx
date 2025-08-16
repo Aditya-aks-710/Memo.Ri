@@ -24,6 +24,7 @@ interface ContentResponse extends ContentInput {
   tags: string; // comma-separated string
 }
 
+
 export function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contents, setContents] = useState<ContentResponse[]>([]);
@@ -88,6 +89,24 @@ useEffect(() => {
     setContents(prev => [newItem, ...prev]);
   };
 
+
+  //delete
+  const handleDelete = async (id : string) => {
+    console.log(id);
+    try{
+      await axios.delete(`http://localhost:3000/api/v1/content/${id}`, {
+        headers: {
+          Authorization: token,
+        },
+      });
+      setContents((prev) => prev.filter((item) => item._id !== id));
+    }
+    catch(err){
+      console.error(err);
+      alert("Failed to delete content");
+    }
+  };
+
   return (
     <div className="sm:flex sm:flex-row flex-col">
         <div className="fixed top-0 left-0 sm:w-fit w-full z-100">
@@ -95,13 +114,13 @@ useEffect(() => {
         </div>
         <div className="flex-1 lg:ml-60 sm:ml-14 mt-[60px] sm:mt-0 h-screen overflow-y-auto bg-[#daedeb] sm:transition-[margin-left] duration-200 ease-in-out">
             <Navbar title="Aditya" image={dp} onAddClick={() => setIsModalOpen(true)} />
-            <div className="sm:mt-30 mt-5">     
+            <div className="sm:mt-30 mt-5 sm:block flex justify-center">     
                 {loading ? (
                 <div className="text-center mt-10 text-lg font-semibold">Loading content...</div>
                 ) : error ? (
                 <div className="text-center mt-10 text-red-600">{error}</div>
                 ) : (
-                <div className="flex flex-wrap mx-5 gap-4">
+                <div className="flex flex-wrap justify-start gap-5 mx-8">
                     {contents.map(item => (
                     <div key={item._id} className="">
                         <Cards
@@ -110,6 +129,7 @@ useEffect(() => {
                             type={item.type}
                             tags={item.tags}
                             previewhtml={item.previewhtml}
+                            onDelete={() => handleDelete(item._id)}
                         />
                         </div>
                     ))}

@@ -16,14 +16,17 @@ export function Cards(props: CardProps) {
             <div className='font-medium text-sm bg-[#438989] max-h-8 px-3 py-2 flex items-center justify-center rounded-md text-white gap-1'>
                 {props.title}
             </div>
-            <div className='bg-[#438989] w-8 h-8 flex items-center justify-center rounded-md'>
+            <button 
+                onClick={props.onDelete}
+                className='bg-[#438989] w-8 h-8 flex items-center justify-center rounded-md'
+            >
                 <Icon.DeleteIcon className='w-5 text-white'/>
-            </div>
+            </button>
             </div>
             <div className='p-2 flex justify-center items-center'>
                 {props.previewhtml ? (
                     <div
-                        className="w-full"
+                        className="sm:w-70 w-100"
                         dangerouslySetInnerHTML={{ __html: props.previewhtml }}
                     />
                     ) : (

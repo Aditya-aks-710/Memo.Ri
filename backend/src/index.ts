@@ -44,6 +44,8 @@ app.post("/api/v1/signup", async function(req, res){
 });
 
 app.post("/api/v1/signin", async function(req, res){
+    console.log(res);
+    console.log(req);
     const { email, password } = req.body;
     const response = await UserModel.findOne({
         email: email
@@ -154,7 +156,14 @@ app.get("/api/v1/content", UserAuth, async function(req, res) {
     });
 });
 
-
+app.delete("/api/v1/content/:id", UserAuth, async function(req, res) {
+    const id = req.params.id;
+    console.log(id);
+    await ContentModel.findByIdAndDelete(id);
+    res.status(200).json({
+        success: true
+    })
+});
 
 
 app.listen(process.env.PORT!, () => {
