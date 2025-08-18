@@ -40,6 +40,8 @@ export function Sidebar({ image, onAddClick, onLogout, onFilterSelect }: Sidebar
           <SubSidebar icon={Icon.YoutubeIcon} title="Videos" active={activeFilter === "video"} onClick={() => handleFilterClick("video")} />
           <SubSidebar icon={Icon.ArticleIcon} title="Articles" active={activeFilter === "article"} onClick={() => handleFilterClick("article")} />
           <SubSidebar icon={Icon.PdfIcon} title="Documents" active={activeFilter === "pdf"} onClick={() => handleFilterClick("pdf")} />
+          <SubSidebar icon={Icon.SearchIcon} title='Search' active={activeFilter === "search"} onClick={() => handleFilterClick("Search")} />
+
         </div>
         <div className='sm:hidden flex flex-1 items-center justify-between mr-2 gap-2'>
           <div
@@ -60,10 +62,12 @@ export function Sidebar({ image, onAddClick, onLogout, onFilterSelect }: Sidebar
         <SubSidebar icon={Icon.YoutubeIcon} title="Videos" active={activeFilter === "video"} onClick={() => handleFilterClick("video")} />
         <SubSidebar icon={Icon.ArticleIcon} title="Articles" active={activeFilter === "article"} onClick={() => handleFilterClick("article")} />
         <SubSidebar icon={Icon.PdfIcon} title="Documents" active={activeFilter === "pdf"} onClick={() => handleFilterClick("pdf")} />
+        <SubSidebar icon={Icon.SearchIcon} title='Search' active={activeFilter === "search"} onClick={() => handleFilterClick("Search")} />
       </div>}
     </div>
   );
 }
+
 
 function SubSidebar(props: SubSidebarProps & { onClick: () => void; active?: boolean }) {
   return (

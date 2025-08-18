@@ -10,3 +10,4 @@ export { HamburgerIcon } from './hamburger';
 export { AddIcon } from './add';
 export { DownIcon } from './down';
 export { DeleteIcon } from './delete';
+export { SearchIcon } from './search';

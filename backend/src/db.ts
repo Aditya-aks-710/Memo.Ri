@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Types} from "mongoose";
 import { required } from "zod/v4/core/util.cjs";
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
@@ -14,16 +14,28 @@ export const UserModel = mongoose.model("User", UserSchema);
 
 export const contentTypes = ['image', 'video', 'pdf', 'article', 'audio'];
 
-const ContentSchema = new Schema({
+export interface IContent extends Document {
+  title: string;
+  type: string;
+  link: string;
+  tags: Types.ObjectId[];
+  creatorId: Types.ObjectId;
+  previewhtml?: string;
+  description?: string;
+  embedding?: number[];
+}
+
+const ContentSchema = new Schema<IContent>({
     title: { type: String, required: true },
     type: { type: String, enum: contentTypes, required: true },
     link: { type: String, required: true },
     tags: [{ type: ObjectId, ref: 'Tag' }],
     creatorId: { type: ObjectId, ref: 'User', required: true },
-    previewhtml: {type: String}
+    previewhtml: {type: String},
+    embedding: {type: [Number], index: "vectorSearch"}
 });
 
-export const ContentModel = mongoose.model("Content", ContentSchema);
+export const ContentModel = mongoose.model<IContent>("Content", ContentSchema);
 
 const LinkShareSchema = new Schema({
     hash: { type: String, require: true },
