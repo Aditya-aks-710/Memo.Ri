@@ -8,6 +8,8 @@ import axios, { isAxiosError } from "axios";
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
+import { API_URL } from "./dashboard";
+
 interface CloudinarySignatureResponse {
   timestamp: number;
   signature: string;
@@ -159,7 +161,7 @@ export function SignUpBox({ setToken, setSignupOpen, setSigninOpen }: SignUpBoxP
       if (croppedImageBlob) {
         const { data: signatureData } =
           await axios.get<CloudinarySignatureResponse>(
-            "http://localhost:3000/api/v1/cloudinary-signature"
+            `${API_URL}api/v1/cloudinary-signature`
           );
 
         const formData = new FormData();
@@ -181,7 +183,7 @@ export function SignUpBox({ setToken, setSignupOpen, setSigninOpen }: SignUpBoxP
       }
 
       const res = await axios.post<SignUpApiResponse>(
-        "http://localhost:3000/api/v1/signup",
+        `${API_URL}api/v1/signup`,
         {
           name,
           email,
