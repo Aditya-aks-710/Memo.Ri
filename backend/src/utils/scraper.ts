@@ -9,6 +9,7 @@ export async function getPreviewHTML(url: string): Promise<string> {
   try {
     const page = await browser.newPage();
     await page.setUserAgent("Mozilla/5.0 (compatible; LinkPreviewBot/1.0)");
+    console.log(url);
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 });
 
     // Try to extract OG tags

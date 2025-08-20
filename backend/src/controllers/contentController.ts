@@ -108,10 +108,7 @@ export const deleteContent = async (req: Request, res: Response) => {
   }
 };
 
-import { atlasVectorSearch } from '../utils/searchservice'; // 👈 Using the production-ready Atlas search
-// To use the simple in-memory search instead, import it:
-// import { simpleVectorSearch } from './search-service'; 
-// import { YourMongooseModel } from '../db/models/content'; // Needed for simple search
+import { atlasVectorSearch } from '../utils/searchservice';
 
 export const searchContentController = async (req: Request, res: Response) => {
   // 1. Extract query and limit from request query parameters
@@ -131,7 +128,7 @@ export const searchContentController = async (req: Request, res: Response) => {
   if (limitStr) {
     const parsedLimit = parseInt(limitStr, 10);
     if (!isNaN(parsedLimit) && parsedLimit > 0) {
-      limit = Math.min(parsedLimit, 50); // Set a max limit of 50 for safety
+      limit = Math.min(parsedLimit, 50);
     }
   }
 
@@ -139,23 +136,14 @@ export const searchContentController = async (req: Request, res: Response) => {
     // 4. Call the search service to get results
     console.log(`Performing search for query: "${query}" with limit: ${limit}`);
     
-    // 🚀 PRODUCTION USAGE (MongoDB Atlas)
     const results = await atlasVectorSearch(query, limit);
 
-    /* // 🧪 PROTOTYPING USAGE (Simple in-memory search)
-    // For this to work, you would first need to load all your content into memory.
-    const allContent = await YourMongooseModel.find({ embedding: { $exists: true } }).lean();
-    const results = await simpleVectorSearch(query, allContent, limit);
-    */
-
-    // 5. Send the successful response
     return res.status(200).json({
       message: 'Search completed successfully.',
       data: results,
     });
 
   } catch (error) {
-    // 6. Handle any errors during the process
     console.error('Error in searchContentController:', error);
     return res.status(500).json({
       error: 'An internal server error occurred while processing your search.',

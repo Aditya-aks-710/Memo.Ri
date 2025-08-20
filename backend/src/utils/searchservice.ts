@@ -1,20 +1,11 @@
-// search-service.ts
 
 import dotenv from "dotenv";
 dotenv.config();
 
 import { GoogleGenAI } from "@google/genai";
-import { IContent } from "../db"; // 👈 You need to provide this type from your project
+import { IContent } from "../db";
 import { ContentModel } from "../db";
 
-// =================================================================================
-// 1. INITIALIZATION
-// =================================================================================
-
-/**
- * Initialize the Google GenAI client.
- * Looks for GOOGLE_API_KEY or GEMINI_API_KEY.
- */
 const apiKey = process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY;
 if (!apiKey) {
   throw new Error(
@@ -24,24 +15,10 @@ if (!apiKey) {
 
 const ai = new GoogleGenAI({ apiKey });
 
-// =================================================================================
-// 2. INTERFACES & TYPES
-// =================================================================================
-
-// An extended interface to represent content that includes its vector embedding
 export interface IContentWithEmbedding extends IContent {
   embedding: number[];
 }
 
-// =================================================================================
-// 3. CORE HELPER FUNCTIONS
-// =================================================================================
-
-/**
- * Creates an embedding for a simple text query using the Gemini model.
- * @param query The user's search query string.
- * @returns An array of numbers (empty array on error).
- */
 async function createEmbeddingForQuery(query: string): Promise<number[]> {
   if (!query) return [];
 
@@ -78,12 +55,6 @@ async function createEmbeddingForQuery(query: string): Promise<number[]> {
   }
 }
 
-/**
- * Calculates the cosine similarity between two vectors.
- * @param vecA The first vector (array of numbers).
- * @param vecB The second vector (array of numbers).
- * @returns A similarity score between -1 and 1.
- */
 function cosineSimilarity(vecA: number[], vecB: number[]): number {
   if (!vecA || !vecB || vecA.length !== vecB.length) {
     return 0;
@@ -109,19 +80,6 @@ function cosineSimilarity(vecA: number[], vecB: number[]): number {
 }
 
 
-// =================================================================================
-// 4. EXPORTED SEARCH FUNCTIONS
-// =================================================================================
-
-/**
- * Performs a simple, brute-force vector search over an in-memory array.
- * ✅ Good for small datasets, prototyping, or testing.
- * ❌ Not recommended for production with large amounts of data due to performance.
- * @param query The user's search query.
- * @param allContent An array of content objects, each with a pre-calculated `embedding` field.
- * @param limit The number of top results to return.
- * @returns A sorted list of content with their similarity scores.
- */
 export async function simpleVectorSearch(
   query: string,
   allContent: IContentWithEmbedding[],
@@ -145,15 +103,8 @@ export async function simpleVectorSearch(
 }
 
 
-/**
- * Performs a highly efficient vector search using a MongoDB Atlas Vector Search index.
- * ✅ Recommended for production. Fast, scalable, and powerful.
- * ❌ Requires setting up MongoDB Atlas and a Vector Search index first.
- * @param query The user's search query.
- * @param limit The number of results to return.
- * @returns A list of matching documents from the database with their similarity scores.
- */
-export async function atlasVectorSearch(query: string, limit: number = 5) {
+
+export async function atlasVectorSearch(query: string, limit: number = 10) {
   const queryEmbedding = await createEmbeddingForQuery(query);
   if (queryEmbedding.length === 0) return [];
 
@@ -185,7 +136,7 @@ export async function atlasVectorSearch(query: string, limit: number = 5) {
     // replace tags with the array of objects that contain only { title }
     { $addFields: { tags: "$tagDocs" } },
 
-    { $match: { score: { $gte: 0.8 } } },
+    { $match: { score: { $gte: 0.7 } } },
     { $limit: limit },
     {
       $project: {
