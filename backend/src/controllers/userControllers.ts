@@ -80,7 +80,6 @@ export const signin = async (req: Request, res: Response) => {
 
 export const getMyProfile = async (req: any, res: Response) => {
   try {
-    // req.userId is added by your UserAuth middleware
     const user = await UserModel.findById(req.userId).select('name email profilePictureUrl');
 
     if (!user) {

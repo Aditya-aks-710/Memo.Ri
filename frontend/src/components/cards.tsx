@@ -9,7 +9,7 @@ export function Cards(props: CardProps) {
         : Array.isArray(props.tags)
         ? props.tags
         : [];
-
+    console.log(tagArray);
     return (
         <div className='bg-white rounded-md drop-shadow-2xl sm:max-w-89 max-w-100 h-fit min-w-50'>
             <div className='flex justify-between items-center px-2 pt-3'>

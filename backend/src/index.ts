@@ -33,6 +33,10 @@ mongoose.connect(process.env.MONGODB_URI!)
 app.use('/api/v1', userRoutes);
 app.use('/api/v1', contentRoutes);
 
+app.get('/',(req,res)=>{
+    res.send("Backend Working")
+});
+
 // Server Startup
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
