@@ -155,40 +155,45 @@ export async function simpleVectorSearch(
  */
 export async function atlasVectorSearch(query: string, limit: number = 5) {
   const queryEmbedding = await createEmbeddingForQuery(query);
-
-  if (queryEmbedding.length === 0) {
-    console.error("Could not create embedding for the search query.");
-    return [];
-  }
+  if (queryEmbedding.length === 0) return [];
 
   const results = await ContentModel.aggregate([
     {
       $vectorSearch: {
-        index: "vector_index",   // 👈 Atlas Vector Search index name
-        path: "embedding",       // Field that stores embeddings
+        index: "vector_index",
+        path: "embedding",
         queryVector: queryEmbedding,
         numCandidates: 150,
-        limit: limit,            // fetch up to `limit`, but we’ll filter after
+        limit,
       },
     },
+    { $addFields: { score: { $meta: "vectorSearchScore" } } },
+
+    // lookup tags by converting string ids -> ObjectId and project only title (no _id)
     {
-      $addFields: {
-        score: { $meta: "vectorSearchScore" },
-      },
+      $lookup: {
+        from: "tags",
+        let: { tagIds: { $map: { input: "$tags", as: "id", in: { $toObjectId: "$$id" } } } },
+        pipeline: [
+          { $match: { $expr: { $in: ["$_id", "$$tagIds"] } } },
+          { $project: { _id: 0, title: 1 } }   // only title
+        ],
+        as: "tagDocs"
+      }
     },
-    {
-      $match: {
-        score: { $gte: 0.8 },   // ✅ Only keep docs with score >= 0.8
-      },
-    },
-    {
-      $limit: limit,            // ✅ Respect `limit` as max results
-    },
+
+    // replace tags with the array of objects that contain only { title }
+    { $addFields: { tags: "$tagDocs" } },
+
+    { $match: { score: { $gte: 0.8 } } },
+    { $limit: limit },
     {
       $project: {
         _id: 1,
         title: 1,
         type: 1,
+        link: 1,
+        previewhtml: 1,
         tags: 1,
         score: 1,
       },
