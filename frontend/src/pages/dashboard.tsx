@@ -8,7 +8,8 @@ import type { ContentInput } from "../components/AddContent";
 import { useNavigate } from "react-router-dom";
 import { SearchBar } from "../components/search";
 
-export const API_URL = process.env.REACT_APP_API_URL;
+export const API_URL = import.meta.env.VITE_API_URL;
+
 
 interface User {
   name: string;
@@ -64,6 +65,7 @@ export function Dashboard({ setToken, setOpen }: DashboardProps) {
 
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchLoading, setIsSearchLoading] = useState<boolean>(false);
+  //@ts-ignore
   const [searchError, setSearchError] = useState<string | null>(null);
 
   const navigate = useNavigate();
@@ -87,7 +89,7 @@ export function Dashboard({ setToken, setOpen }: DashboardProps) {
       try {
         const config = { headers: { Authorization: token } };
         const response = await axios.post<{ contentId: string; previewhtml?: string }>(
-          `${API_URL}api/v1/content`,
+          `${API_URL}/api/v1/content`,
           { ...data, tags: data.tags.split(",").map((tag) => tag.trim()) },
           config
         );
@@ -111,7 +113,7 @@ export function Dashboard({ setToken, setOpen }: DashboardProps) {
   const handleDelete = useCallback(
     async (id: string) => {
       try {
-        await axios.delete(`${API_URL}api/v1/content/${id}`, {
+        await axios.delete(`${API_URL}/api/v1/content/${id}`, {
           headers: { Authorization: token },
         });
         setContents((prev) => prev.filter((item) => item._id !== id));
@@ -131,7 +133,7 @@ export function Dashboard({ setToken, setOpen }: DashboardProps) {
       setSearchError(null);
       setSearchResults([]);
       try {
-        const apiUrl = `${API_URL}api/v1/content/search?query=${encodeURIComponent(
+        const apiUrl = `${API_URL}/api/v1/content/search?query=${encodeURIComponent(
           searchQuery
         )}&limit=5`;
         const response = await axios.get<ApiResponse>(apiUrl, {
@@ -165,8 +167,8 @@ export function Dashboard({ setToken, setOpen }: DashboardProps) {
         const config = { headers: { Authorization: token } };
 
         const [userRes, contentRes] = await Promise.all([
-          axios.get<{ user: User }>(`${API_URL}api/v1/me`, config),
-          axios.get<{ contents: BackendContent[] }>(`${API_URL}api/v1/content`, config),
+          axios.get<{ user: User }>(`${API_URL}/api/v1/me`, config),
+          axios.get<{ contents: BackendContent[] }>(`${API_URL}/api/v1/content`, config),
         ]);
 
         setUser(userRes.data.user);

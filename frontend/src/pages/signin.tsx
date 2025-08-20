@@ -41,7 +41,7 @@ export function SigninBox({ setToken, setOpen, setSignupOpen }: SigninBoxProps) 
     setErrorMsg("");
 
     try {
-      const res = await axios.post<SigninResponse>(`${API_URL}api/v1/signin`, {
+      const res = await axios.post<SigninResponse>(`${API_URL}/api/v1/signin`, {
         email: formData.email,
         password: formData.password,
       });

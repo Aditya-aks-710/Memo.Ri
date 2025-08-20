@@ -161,7 +161,7 @@ export function SignUpBox({ setToken, setSignupOpen, setSigninOpen }: SignUpBoxP
       if (croppedImageBlob) {
         const { data: signatureData } =
           await axios.get<CloudinarySignatureResponse>(
-            `${API_URL}api/v1/cloudinary-signature`
+            `${API_URL}/api/v1/cloudinary-signature`
           );
 
         const formData = new FormData();
@@ -183,7 +183,7 @@ export function SignUpBox({ setToken, setSignupOpen, setSigninOpen }: SignUpBoxP
       }
 
       const res = await axios.post<SignUpApiResponse>(
-        `${API_URL}api/v1/signup`,
+        `${API_URL}/api/v1/signup`,
         {
           name,
           email,
