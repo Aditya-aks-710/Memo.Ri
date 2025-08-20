@@ -10,6 +10,7 @@ function PrivateRoute({ children }: { children: ReactNode }) {
 }
 
 function AppRoutes() {
+ // @ts-ignore
   const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
   const [isSigninOpen, setSigninOpen] = useState(false);
 
