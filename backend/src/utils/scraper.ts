@@ -16,7 +16,7 @@ export async function getPreviewHTML(url: string): Promise<string> {
   try {
     const page = await browser.newPage();
     await page.setUserAgent("Mozilla/5.0 (compatible; LinkPreviewBot/1.0)");
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 40000 });
 
     // Extract metadata
     const metadata = await page.evaluate(() => {
