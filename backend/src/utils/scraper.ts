@@ -1,10 +1,10 @@
 import puppeteer from "puppeteer";
 
 export async function getPreviewHTML(url: string): Promise<string> {
-  // Launch Puppeteer using bundled Chromium
+  // Launch Puppeteer. It will automatically find the browser
+  // installed by the Dockerfile.
   const browser = await puppeteer.launch({
     headless: true,
-    // executablePath: '/usr/bin/chromium',
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -15,8 +15,13 @@ export async function getPreviewHTML(url: string): Promise<string> {
 
   try {
     const page = await browser.newPage();
-    await page.setUserAgent("Mozilla/5.0 (compatible; LinkPreviewBot/1.0)");
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 40000 });
+    await page.setUserAgent("Mozilla/5.0 (compatible; LinkPreviewBot/1.0; +https://github.com/Aditya-aks-710/Memo.Ri.git)"); // It's good practice to add a link
+
+    // --- THIS IS THE KEY FIX ---
+    // Changed 'domcontentloaded' to 'networkidle2'.
+    // This waits until the network is quiet, allowing JavaScript-heavy
+    // sites like YouTube to finish loading their metadata before we scrape.
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 40000 });
 
     // Extract metadata
     const metadata = await page.evaluate(() => {
@@ -66,7 +71,9 @@ export async function getPreviewHTML(url: string): Promise<string> {
       </div>
     `;
   } catch (err) {
-    await browser.close();
+    if (browser) {
+      await browser.close();
+    }
     console.error("Error fetching preview:", err);
     throw err;
   }
