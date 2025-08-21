@@ -108,10 +108,13 @@ export const getContent = async (req: Request, res: Response) => {
       ])
       .exec();
 
-    if (!contents || contents.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No content found for this user." });
+    // --- THIS IS THE FIX ---
+    // A new user having no content is a valid, successful state.
+    // We should return a 200 OK with an empty array, not a 404 Not Found.
+    // The frontend was treating the 404 as an error and logging the user out.
+    if (!contents) {
+        // This case is unlikely but good to handle.
+        return res.status(200).json({ contents: [] });
     }
 
     return res.status(200).json({ contents });
