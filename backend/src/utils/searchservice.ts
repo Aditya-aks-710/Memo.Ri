@@ -136,7 +136,7 @@ export async function atlasVectorSearch(query: string, limit: number = 10) {
     // replace tags with the array of objects that contain only { title }
     { $addFields: { tags: "$tagDocs" } },
 
-    { $match: { score: { $gte: 0.7 } } },
+    { $match: { score: { $gte: 0.8 } } },
     { $limit: limit },
     {
       $project: {

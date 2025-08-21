@@ -22,7 +22,7 @@ export async function getPreviewHTML(url: string): Promise<string> {
     );
 
     const data = response.data;
-
+    // console.log(data);
     const title = data.meta?.title || "No title";
     const description = data.meta?.description || "No description available";
     const image = data.links?.thumbnail?.[0]?.href || 
