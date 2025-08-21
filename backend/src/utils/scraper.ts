@@ -4,6 +4,7 @@ export async function getPreviewHTML(url: string): Promise<string> {
   // Launch Puppeteer using bundled Chromium
   const browser = await puppeteer.launch({
     headless: true,
+    executablePath: '/usr/bin/chromium',
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
   });
 
