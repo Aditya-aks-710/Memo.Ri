@@ -5,13 +5,18 @@ export async function getPreviewHTML(url: string): Promise<string> {
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: '/usr/bin/chromium',
-    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu'
+    ]
   });
 
   try {
     const page = await browser.newPage();
     await page.setUserAgent("Mozilla/5.0 (compatible; LinkPreviewBot/1.0)");
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 });
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
 
     // Extract metadata
     const metadata = await page.evaluate(() => {
