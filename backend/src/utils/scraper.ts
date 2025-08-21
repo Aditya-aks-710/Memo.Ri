@@ -15,13 +15,19 @@ export async function getPreviewHTML(url: string): Promise<string> {
 
   try {
     const page = await browser.newPage();
-    await page.setUserAgent("Mozilla/5.0 (compatible; LinkPreviewBot/1.0; +https://github.com/Aditya-aks-710/Memo.Ri.git)"); // It's good practice to add a link
+    await page.setUserAgent("Mozilla/5.0 (compatible; LinkPreviewBot/1.0; +https://github.com/your-repo)");
 
-    // --- THIS IS THE KEY FIX ---
-    // Changed 'domcontentloaded' to 'networkidle2'.
-    // This waits until the network is quiet, allowing JavaScript-heavy
-    // sites like YouTube to finish loading their metadata before we scrape.
-    await page.goto(url, { waitUntil: "networkidle2", timeout: 40000 });
+    // --- THIS IS THE KEY FIX for Infinite Scroll ---
+    // 1. Go to the page and wait only for the initial HTML to be ready.
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+
+    // 2. Wait specifically for the meta tags we need. This is more reliable
+    // than waiting for the whole page to load, especially on infinite-scroll sites.
+    // It will wait until either the 'og:title' or 'og:image' tag appears.
+    await page.waitForSelector(
+      'head meta[property="og:title"], head meta[property="og:image"]',
+      { timeout: 30000 } // Give it 15 seconds to find the tags
+    );
 
     // Extract metadata
     const metadata = await page.evaluate(() => {
