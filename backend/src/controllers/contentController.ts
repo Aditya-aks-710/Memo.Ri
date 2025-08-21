@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ContentModel, TagModel, IContent } from "../db";
 import { contentSchema } from "../validators/contentvalidation";
-import { getPreviewHTML } from "../utils/scraper";
+import { getPreviewHTML } from "../utils/scrapperAPI";
 import { createEmbeddingForContent } from "../utils/embeddings";
 import { atlasVectorSearch } from "../utils/searchservice";
 import { z } from "zod";
