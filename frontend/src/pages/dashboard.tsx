@@ -187,7 +187,7 @@ export function Dashboard({ setToken, setOpen }: DashboardProps) {
         console.error(err);
         setError("Unauthorized or failed to fetch data. Please sign in again.");
         localStorage.removeItem("token");
-        navigate("/signin");
+        navigate("/");
       } finally {
         setLoading(false);
       }

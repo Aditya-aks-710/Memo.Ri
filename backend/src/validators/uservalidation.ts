@@ -1,13 +1,17 @@
-import { email, parseAsync, z } from "zod";
+import { z } from "zod";
 
 export const signupSchema = z.object({
-    email: z.email("Invalid Email address !"),
-    password: z.string().min(8, "Minimum 8 characters required !"),
-    name: z.string().min(1, "Name is required !"),
-    profilePictureUrl: z.url().optional(),
+  name: z.string().min(1, "Name is required !"),
+  email: z.string().email("Invalid Email address !"),
+  password: z.string().min(8, "Minimum 8 characters required !"),
+  profilePictureUrl: z.string().url("Invalid URL").optional(),
 });
 
 export const signinSchema = z.object({
-    email: z.email("Invalid Email address"),
-    password: z.string().min(1, "Minimum 8 characters required !")
+  email: z.string().email("Invalid Email address"),
+  password: z.string().min(8, "Minimum 8 characters required !"),
 });
+
+// Optional inferred types for controllers
+export type SignupInput = z.infer<typeof signupSchema>;
+export type SigninInput = z.infer<typeof signinSchema>;

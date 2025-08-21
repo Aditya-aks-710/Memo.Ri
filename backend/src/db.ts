@@ -12,7 +12,7 @@ const UserSchema = new mongoose.Schema({
 
 export const UserModel = mongoose.model("User", UserSchema);
 
-export const contentTypes = ['image', 'video', 'pdf', 'article', 'audio'];
+export const contentTypes = ['image', 'video', 'pdf', 'article', 'audio'] as const;
 
 export interface IContent extends Document {
   title: string;
